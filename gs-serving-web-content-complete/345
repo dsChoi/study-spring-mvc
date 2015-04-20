@@ -1,0 +1,154 @@
+/* Formatted on 2014-12-19 오후 2:47:28 (QP5 v5.163.1008.3004) */
+SELECT ROWNUM AS NUM
+     , CEIL (COUNT (*) OVER ()) AS total
+     , A.*
+  FROM (  SELECT tbl1.*
+            FROM (SELECT pft.solution
+                       , pft.bound
+                       , pft.bound_type
+                       , pft.bound || '-' || pft.bound_type || '-' || pft.sr_no AS GROUP_NO
+                       , pft.order_type_mh
+                       , pft.issue_date
+                       , pft.profit_date
+                       , pft.finish_yn
+                       , pft.order_date
+                       , pft.ob_date
+                       , pft.ar_date
+                       , pft.orig_code
+                       , pft.orig_name
+                       , pft.dest_code
+                       , pft.dest_name
+                       , pft.partner_code
+                       , pft.partner_name
+                       , pft.customer_code
+                       , pft.customer_name
+                       , pft.mbl_no
+                       , pft.hbl_no
+                       , pft.bl_type_sc
+                       , DECODE (pft.order_type_gac,  'G', 'GENERAL',  'A', 'AMEND',  'C', 'CONSOL',  'NONE') order_type_gac
+                       , pft.flight_vessel_name
+                       , pft.pieces
+                       , pft.unit_pieces
+                       , pft.gwt
+                       , pft.cwt_cbm
+                       , pft.ar_currency_code
+                       , NVL (pft.ar_exrate, 0) AS ar_exrate
+                       , pft.freight_term
+                       , pft.r_foreign_y_amount_cur
+                       , pft.r_foreign_y_amount_loc
+                       , pft.r_foreign_n_amount_loc
+                       , pft.r_refund_amount_loc
+                       , pft.r_amount_loc
+                       , pft.mr_amount_loc
+                       , DECODE (pft.ORDER_TYPE_MH, 'M', NVL (MEXP.me_foreign_y_amount_cur, 0), pft.me_foreign_y_amount_cur) AS me_foreign_y_amount_cur
+                       , DECODE (pft.ORDER_TYPE_MH, 'M', NVL (MEXP.me_foreign_y_amount_loc, 0), pft.me_foreign_y_amount_loc) AS me_foreign_y_amount_loc
+                       , DECODE (pft.ORDER_TYPE_MH, 'M', NVL (MEXP.me_foreign_n_amount_loc, 0), pft.me_foreign_n_amount_loc) AS me_foreign_n_amount_loc
+                       , DECODE (pft.ORDER_TYPE_MH, 'M', NVL (MEXP.me_refund_amount_loc, 0), pft.me_refund_amount_loc) AS me_refund_amount_loc
+                       , DECODE (pft.ORDER_TYPE_MH, 'M', NVL (MEXP.me_amount_loc, 0), pft.me_amount_loc) AS me_amount_loc
+                       , DECODE (pft.ORDER_TYPE_MH, 'M', 0, pft.c_amount_total_loc) AS c_amount_total_loc
+                       , pft.hdc_foreign_y_dr_amount_cur
+                       , pft.hdc_foreign_y_dr_amount_loc
+                       , pft.hdc_foreign_y_cr_amount_cur
+                       , pft.hdc_foreign_y_cr_amount_loc
+                       , pft.profit_usd
+                       , pft.profit_loc
+                       , pft.profit_frt_loc
+                       , pft.profit_otc_loc
+                       , pft.profit_revenue_ratio
+                       , pft.lcl_cbm
+                       , pft.cntr_20
+                       , pft.cntr_40
+                       , pft.cntr_45
+                       , pft.cntr_teu
+                       , pft.cwt_lbs
+                       , pft.cwt_cbm_cft
+                       , pft.selling_rate
+                       , pft.buying_rate
+                       , pft.shipper_code
+                       , pft.shipper_name
+                       , pft.consignee_code
+                       , pft.consignee_name
+                       , pft.notify_code
+                       , pft.notify_name
+                       , pft.agent_code
+                       , pft.agent_name
+                       , pft.carrier_code
+                       , pft.carrier_name
+                       , pft.salesman_user_id
+                       , pft.incoterms
+                       , pft.area_code
+                       , pft.od_reference_no
+                       , pft.country_code
+                       , pft.team_code
+                       , pft.group_code
+                       , pft.register_user_id
+                       , pft.ent_code
+                       , pft.ent_business_code
+                       , pft.ent_office_code
+                       , pft.bl_sales_type
+                       , ofc.office_print_name
+                       , cd1.name_default AS country_name
+                       , cd2.name_default AS team_name
+                       , cd3.name_default AS group_name
+                       , cd4.name_default AS bl_type_sc_name
+                       , cd5.name_default AS area_name
+                       , usr1.user_name AS register_user_name
+                       , usr3.user_name AS salesman_user_name
+                    FROM vtb_fms_profit pft
+                         LEFT JOIN tb_sms_ent_office ofc
+                            ON ofc.ent_code = pft.ent_code
+                           AND ofc.ent_business_code = pft.ent_business_code
+                           AND ofc.ent_office_code = pft.ent_office_code
+                         LEFT JOIN tb_sms_code_detail cd1
+                            ON cd1.group_code = 'COUNTRY'
+                           AND cd1.code = pft.country_code
+                           AND cd1.ent_code = pft.ent_code
+                         LEFT JOIN tb_sms_code_detail cd2
+                            ON cd2.group_code = 'TEAMCODE'
+                           AND cd2.code = pft.team_code
+                           AND cd2.ent_code = pft.ent_code
+                         LEFT JOIN tb_sms_code_detail cd3
+                            ON cd3.group_code = 'GROUP_CODE'
+                           AND cd3.code = pft.group_code
+                           AND cd3.ent_code = pft.ent_code
+                         LEFT JOIN tb_sms_code_detail cd4
+                            ON cd4.group_code = 'BL_TYPE_SC'
+                           AND cd4.code = pft.bl_type_sc
+                           AND cd4.ent_code = pft.ent_code
+                         LEFT JOIN tb_sms_code_detail cd5
+                            ON cd5.group_code = 'AREA'
+                           AND cd5.code = pft.area_code
+                           AND cd5.ent_code = pft.ent_code
+                         LEFT JOIN tb_sms_user usr1
+                            ON usr1.user_id = pft.register_user_id
+                           AND usr1.ent_code = pft.ent_code
+                         LEFT JOIN tb_sms_user usr3
+                            ON usr3.user_id = pft.salesman_user_id
+                           AND usr3.ent_code = pft.ent_code
+                         LEFT JOIN (  SELECT inv.job_no
+                                           , SUM (DECODE (inv.charge_type_reo, 'E', DECODE (inv.charge_code, 'REF', 0, DECODE (inv.INV_CUR_YN, 'Y', inv.amount_cur, 0)), 0)) AS ME_Foreign_Y_amount_cur
+                                           , SUM (DECODE (inv.charge_type_reo, 'E', DECODE (inv.charge_code, 'REF', 0, DECODE (inv.INV_CUR_YN, 'Y', inv.amount_loc, 0)), 0)) AS ME_Foreign_Y_amount_loc
+                                           , SUM (DECODE (inv.charge_type_reo, 'E', DECODE (inv.charge_code, 'REF', 0, DECODE (inv.INV_CUR_YN, 'N', inv.amount_loc, 0)), 0)) AS ME_Foreign_N_amount_loc
+                                           , SUM (DECODE (inv.charge_type_reo, 'E', DECODE (inv.charge_code, 'REF', inv.amount_loc, 0), 0)) AS ME_Refund_amount_loc
+                                           , SUM (DECODE (inv.charge_type_reo, 'E', inv.amount_loc, 0)) AS ME_amount_loc
+                                        FROM TB_COM_OD_CHG_INVOICE inv
+                                       WHERE inv.CHG_PROFIT_TYPE <> 'N'
+                                         AND inv.INVOICE_YN = 'Y'
+                                         AND inv.charge_type_reo = 'E'
+                                    GROUP BY inv.JOB_NO) MEXP
+                            ON MEXP.job_no = pft.JOB_NO
+                           AND pft.OBAR_DATE >= TO_DATE (:srchStartDate, :srchDateFormat)
+                           AND pft.OBAR_DATE < TO_DATE (:srchEndDate, :srchDateFormat) + 1
+                           AND pft.sr_no IN (SELECT sr_no
+                                               FROM TB_COM_OD od INNER JOIN tb_com_od_bl odbl ON odbl.job_no = od.job_no
+                                              WHERE od.ent_code = :srchEntCode
+                                                AND HBL_NO = :srchCodeA)
+                           AND pft.ent_code = :srchEntCode
+                           AND pft.ent_business_code = :srchEntBusinessCode
+                           AND pft.solution = :srchSolution
+                           AND pft.obl_job_no IS NOT NULL
+                           AND pft.order_type_gac != 'A') tbl1
+        ORDER BY mbl_no
+               , bound
+               , bound_type
+               , order_type_mh DESC) A
