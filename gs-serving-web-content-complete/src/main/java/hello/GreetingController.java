@@ -3,6 +3,7 @@ package hello;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +11,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,24 +20,21 @@ import com.setin.exception.CommonException;
 import com.setin.util.DefaultFileUtil;
 
 @Controller
-@ConfigurationProperties(locations={"application.properties"})
 public class GreetingController {
-
-	@Value("${default.top.dir}")
-	private String defaultDir;
-
 	@RequestMapping("/greeting")
 	public String greeting(
-			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "name", required = false, defaultValue = "F:/사진/") String name,
 			Model model) throws CommonException {
 		System.out.println(name);
-		
-		if(name == null || "".equals(name)){
-			name = defaultDir;
-		}
-			
-		
 		Map<String, List<File>> files = DefaultFileUtil.getList(new File(name));
+		/*
+		 * files.get("file").stream().forEach(f -> { System.out.print("file : "
+		 * + f.getName()); System.out.println("file size : " + f.length()); });
+		 * files.get("directory").stream().forEach(f -> {
+		 * System.out.print("file : " + f.getName());
+		 * System.out.println(" file size : " + f.length()); });
+		 */
+
 		model.addAttribute("files", files.get("file"));
 		model.addAttribute("directory", files.get("directory"));
 
